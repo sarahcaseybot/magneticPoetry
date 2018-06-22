@@ -1,0 +1,190 @@
+<!--
+    Sarah Botwinick
+    HW5
+-->
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Magnetic Poetry!</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+        <style>
+            body{
+                background-color:black;
+
+            }
+            wordButton{
+                background:white;
+                position: absolute;
+
+                top: 200px;
+                left: 200px;
+                
+            }
+            trash{
+                float: left;
+            }
+        </style>
+    </head>
+
+<body>
+    <div id="fullPage">
+           
+
+        <input type="text" id="newWord" name="newWord" placeholder="Enter a Word" required/>
+        <input type="submit" value="add" id="add" onclick="word()"/>
+       
+    </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+    <div id="trash">            
+
+            <img src="trashcan.jpeg" height="90px" width="90px"></div>
+<script>
+    var num = 0;
+
+
+
+
+
+//check
+var current = null;
+xplace = 0;
+yplace = 0;
+elementx = 0;
+elementy = 0;
+
+$('#fullPage').on('mousedown', '[id^=wordButtons]', function() {
+	drag(this);
+	return false;
+});
+
+document.onmousemove = moving;
+
+function drag(element){
+    current = element;
+    console.log("dragging");
+    console.log(current);
+		elementx = xplace - current.offsetLeft;
+		elementy = yplace - current.offsetTop;
+}
+
+function moving(element){
+    yplace = document.all ? window.event.clientY : element.pageY;
+
+	xplace = document.all ? window.event.clientX : element.pageX;
+
+    if(current !== null) {
+        console.log("moving");
+        console.log(current);
+        //current.style.background = 'red';
+        //current.style.top = '100px';
+
+		current.style.left = (xplace - elementx) + 'px';
+		current.style.top = (yplace - elementy) + 'px';
+	}
+};
+
+document.onmouseup = endMove;
+
+function endMove(){
+	if(current !== null){
+        if(current.getBoundingClientRect().top > 45 && current.getBoundingClientRect().top < 115 && current.getBoundingClientRect().left > 7 && current.getBoundingClientRect().left < 85){
+        var n = document.getElementById(current.id);
+		n.parentNode.removeChild(n);
+        }
+    current = null;
+    }
+}
+
+//finish check
+
+
+    $(window).on("load", function(){
+        var wordList = JSON.parse(localStorage.getItem("wordsArray"));
+        console.log("words have been retrieved");
+        var counter = 0;
+        while(counter < wordList.length){
+            console.log("generating next word");
+            var button = document.createElement("wordButton");
+            button.setAttribute("class", "wordButtons");
+            button.id = "wordButtons"+num;
+            console.log("button id: "+ button.id);
+            var term = document.createTextNode(wordList[counter].word);
+	
+            button.appendChild(term);
+            document.getElementById("fullPage").appendChild(button);
+            button.style.left = wordList[counter].leftPlace + 'px';
+            button.style.top = wordList[counter].topPlace + 'px';
+
+		    num++;
+            counter++;
+        }
+    	localStorage.removeItem("wordsArray");
+
+
+
+    });
+
+    var createWord = function (word, top, left) {
+	this.word = word;
+	this.topPlace = top;
+	this.leftPlace = left;
+}
+
+$(window).on("unload", function(){
+    alert("hi");
+    var elementMemory = document.getElementsByClassName("wordButtons");
+    var counter = 0;		
+	var wordArray = [];
+    while(counter < elementMemory.length){
+        var word = elementMemory[counter].textContent;
+        console.log(word);
+
+		var top = elementMemory[counter].getBoundingClientRect().top;
+        var left = elementMemory[counter].getBoundingClientRect().left;
+        wordArray[counter] = new createWord(word,top,left);
+
+        counter++;
+    }
+
+	if(typeof(Storage) !== "undefined") {
+		localStorage.setItem("wordsArray", JSON.stringify(wordArray));
+		alert("words have been saved");
+	}
+	else{
+		alert("Local Storage is not currently supported.");
+	}
+});
+
+    function word(){
+        var word = document.getElementById("newWord").value;
+    	document.getElementById('newWord').value=null;
+        var magnet = document.createElement("wordButton");
+        magnet.setAttribute("class", "wordButtons");
+	    magnet.id="wordButtons"+num;
+        num++;
+        var term = document.createTextNode(word);
+        magnet.appendChild(term);
+        document.getElementById("fullPage").appendChild(magnet);
+        
+
+
+
+    }
+
+</script>
+
+</body>
+
+</html>
